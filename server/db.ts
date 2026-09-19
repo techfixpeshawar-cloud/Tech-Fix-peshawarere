@@ -1,0 +1,664 @@
+import fs from 'fs';
+import path from 'path';
+import {
+  Service,
+  ServiceRequest,
+  Booking,
+  Customer,
+  FAQItem,
+  ServiceArea,
+  RealServiceCase,
+  MediaItem,
+  WebsiteSettings,
+} from '../src/types.js';
+
+export interface DatabaseSchema {
+  settings: WebsiteSettings;
+  services: Service[];
+  requests: ServiceRequest[];
+  bookings: Booking[];
+  customers: Customer[];
+  faq: FAQItem[];
+  areas: ServiceArea[];
+  cases: RealServiceCase[];
+  media: MediaItem[];
+}
+
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+const initialSettings: WebsiteSettings = {
+  businessName: 'Peshawar Tech Support',
+  tagline: 'On-Site Windows & Computer Support',
+  phone: '+92 312 9876543',
+  whatsappNumber: '+92 312 9876543',
+  whatsappDefaultMsg: 'Hello Safiullah, I need computer support in Peshawar.\nDevice: \nProblem: \nArea: \nPreferred Time: ',
+  email: 'techfixpeshawar@gmail.com',
+  location: 'Peshawar, Khyber Pakhtunkhwa, Pakistan',
+  businessHours: 'Monday – Saturday: 9:00 AM – 9:00 PM (Emergency on-call available)',
+  onSiteVisitFee: 500,
+  heroHeadline: "COMPUTER PROBLEM?\nDON'T WASTE YOUR DAY.",
+  heroSubtitle: 'Fast On-Site Computer Support in Peshawar',
+  heroDescription: 'Windows installation, computer troubleshooting, OS migration, data recovery assistance, and BSOD diagnosis — delivered directly at your home or office by appointment.',
+  primaryButtonText: 'BOOK A SERVICE',
+  primaryButtonLink: '#book-service',
+  secondaryButtonText: 'CONTACT ON WHATSAPP',
+  secondaryButtonLink: '#whatsapp',
+  heroBadge: 'ON-SITE COMPUTER SUPPORT • WINDOWS • DATA • SSD',
+  technicianName: 'Safiullah',
+  technicianTitle: 'Computer Science & Cybersecurity • Univ. of Agriculture, Peshawar',
+  technicianExperience: '5+ Years Practical Experience',
+  technicianBio: "Hi, I'm Safiullah. I'm a student at the University of Agriculture, Peshawar, developing my knowledge in Computer Science and Cybersecurity, with around 5 years of practical experience working with computers, Windows systems, troubleshooting, OS installation, migration, and recovery.\n\nI started this service because computer problems shouldn't force people to waste an entire day travelling to a repair shop, unplugging cables, and leaving their computer behind.",
+  technicianPhoto: 'https://res.cloudinary.com/frbhiwf3/image/upload/v1789623662/WhatsApp_Image_2026-09-02_at_3.32.16_PM.jpg',
+  technicianDisplay: true,
+  bulkServiceTitle: 'Need Windows On 5, 10, 20 Or 50+ PCs?',
+  bulkServiceDescription: 'Windows deployment, OS migration, official drivers, software provisioning, network setup, and stability testing for offices, schools, computer labs, and academies across Peshawar.',
+  bulkServiceMinPCs: 5,
+  bulkServicePricingNote: 'Custom bulk quote based on number of systems, SSD upgrade requirements, and software bundle.',
+  footerCopyright: '© 2026 Peshawar Tech Support. Professional on-site computer services in Peshawar, KPK.',
+  footerDescription: 'Convenient on-site Windows and hardware troubleshooting across Peshawar. Save time, protect your data, and get personal professional support right at your door.',
+  seoTitle: 'Peshawar Tech Support | On-Site Windows & Computer Repair',
+  seoDescription: 'Professional on-site Windows installation, computer repair, SSD upgrade, data recovery, and BSOD diagnosis in Peshawar. We come to your home or office.',
+  emergencyAvailable: true,
+  maintenanceMode: false,
+  pagePublished: true,
+  sectionVisibility: {
+    hero: true,
+    whyOnSite: true,
+    problemSelector: true,
+    services: true,
+    bulkDeployment: true,
+    realCases: true,
+    technicianBio: true,
+    serviceAreas: true,
+    faqs: true,
+    whoWeServe: true,
+    trust: true,
+    requestForm: true
+  }
+};
+
+const initialServices: Service[] = [
+  {
+    id: 'srv-windows-install',
+    name: 'Windows Installation & Setup',
+    shortDescription: 'Clean and efficient Windows 10/11 installation and configuration on laptops and desktops.',
+    fullDescription: 'Fast and efficient Windows installation on compatible laptops and desktop computers. I handle corrupted Windows, severe software issues, failed updates, system instability, or preparing new/used PCs with complete driver and update configuration.',
+    icon: 'Monitor',
+    startingPrice: 2000,
+    priceType: 'starting',
+    serviceDuration: '45 - 90 mins',
+    category: 'Windows',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 1,
+    featured: true,
+    workflowSteps: [
+      'Backup Important Data (where needed)',
+      'Install Windows (Clean 10/11 64-bit)',
+      'Install Official Hardware Drivers',
+      'Run Essential Windows Updates',
+      'Configure Privacy, Performance & System Settings',
+      'Thorough System & Stability Test'
+    ],
+    keyPoints: [
+      'Genuine, clean Microsoft images without bloatware',
+      'Total time depends on SSD/HDD, hardware speed & updates',
+      'Includes browser, PDF reader, and baseline setup'
+    ]
+  },
+  {
+    id: 'srv-os-migration',
+    name: 'HDD to SSD & OS Migration',
+    shortDescription: 'Make your old computer feel brand new with modern high-speed SSD upgrade.',
+    fullDescription: 'Many older computers use traditional hard disk drives (HDDs). Replacing the system drive with a modern SSD can significantly improve everyday responsiveness, startup times, and application loading without buying a new laptop.',
+    icon: 'HardDrive',
+    startingPrice: 2500,
+    priceType: 'starting',
+    serviceDuration: '60 - 90 mins',
+    category: 'SSD / OS Migration',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 2,
+    featured: true,
+    workflowSteps: [
+      'Inspect Old Drive Health (SMART health check)',
+      'Clone / Migrate Windows Installation to Fast SSD',
+      'Align SSD Partitions for Maximum Longevity & IOPS',
+      'Configure BIOS/UEFI Boot Priority & AHCI Mode',
+      'Convert Old HDD to Storage / Caddy Secondary Drive',
+      'Verify Boot Speed & Everyday Responsiveness'
+    ],
+    keyPoints: [
+      'Instant 5x to 10x boot and app launch speed improvement',
+      'Keep your files, apps, and Windows settings intact where drive health allows',
+      'Clean reinstall recommended if old drive is severely degraded'
+    ]
+  },
+  {
+    id: 'srv-data-recovery',
+    name: 'Data Recovery Assistance',
+    shortDescription: 'CRITICAL: Stop using the drive before you overwrite deleted or lost files.',
+    fullDescription: 'When files are deleted or partitions become RAW, data often remains physically recoverable until overwritten by new files. We use non-destructive cloning and raw sector analysis to recover deleted documents, photos, and files without risking drive degradation.',
+    icon: 'Database',
+    startingPrice: 3000,
+    priceType: 'diagnostic',
+    serviceDuration: '1 - 3 hours (depends on drive size)',
+    category: 'Data Recovery',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 3,
+    featured: true,
+    warningMessage: 'DO NOT FORMAT THE DRIVE. DO NOT INSTALL WINDOWS ON IT. DO NOT COPY NEW FILES. STOP USING IT IMMEDIATELY.',
+    workflowSteps: [
+      'Immediately Halt Drive Writes to Prevent Overwrites',
+      'Diagnostic Health Assessment (Identify Logical vs. Physical Failure)',
+      'Create Bit-by-Bit Image/Clone When Appropriate',
+      'Attempt Non-Destructive Deep File Recovery from Copy',
+      'Extract & Verify Recovered Documents, Photos & Folders',
+      'Safe Transfer to Verified External Storage'
+    ],
+    keyPoints: [
+      'Recovery depends on drive condition and whether data was overwritten',
+      'Physically clicking or unreadable drives are referred to specialized cleanroom labs',
+      'Transparent diagnostic report before any recovery attempt'
+    ]
+  },
+  {
+    id: 'srv-bsod-troubleshooting',
+    name: 'Blue Screen (BSOD) Diagnosis',
+    shortDescription: 'Find the real root cause behind system crashes instead of blindly formatting.',
+    fullDescription: 'A Blue Screen of Death is a symptom, not a death sentence. Reinstalling Windows without finding the cause often results in the crash returning. We analyze minidump logs, test RAM, verify disk health, and check thermals to fix the real root cause.',
+    icon: 'AlertTriangle',
+    startingPrice: 1500,
+    priceType: 'starting',
+    serviceDuration: '45 - 75 mins',
+    category: 'Troubleshooting',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 4,
+    featured: true,
+    workflowSteps: [
+      'Analyze Stop Code & Windows Memory Minidump',
+      'Inspect Crash Logs & Kernel Error Codes',
+      'Diagnose Corrupt or Conflicting Drivers',
+      'Run Deep Memory Stress & RAM Integrity Test',
+      'Test Storage Controller & SMART Sector Errors',
+      'Check CPU/GPU Thermals & Power Supply Stability',
+      'Apply Targeted Patch & Perform Final Stress Test'
+    ],
+    keyPoints: [
+      'Diagnose the actual problem instead of mindless formatting',
+      'Clear explanation of hardware vs. software cause',
+      'Prevent future sudden crashes and data loss'
+    ]
+  },
+  {
+    id: 'srv-windows-repair',
+    name: 'Windows Boot & System Repair',
+    shortDescription: 'Repair first when appropriate. Reinstall only when strictly necessary.',
+    fullDescription: 'Windows stuck in automatic repair loop? BootBCD corrupted after an update? We repair bootloaders, fix corrupted system components (SFC/DISM), and restore stability while preserving all your personal applications and data.',
+    icon: 'Wrench',
+    startingPrice: 1500,
+    priceType: 'starting',
+    serviceDuration: '40 - 60 mins',
+    category: 'Windows',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 5,
+    featured: false,
+    workflowSteps: [
+      'Inspect EFI/MBR Boot Partition & BCD Records',
+      'Repair Corrupted Boot Configuration Data',
+      'Resolve Automatic Startup Repair Infinite Loops',
+      'Repair Corrupted Windows System Files via Offline DISM',
+      'Rollback Faulty Cumulative Updates or Driver Updates',
+      'Verify Clean Boot & System Integrity'
+    ]
+  },
+  {
+    id: 'srv-slow-pc-tuneup',
+    name: 'Slow Computer & Laptop Tune-Up',
+    shortDescription: 'Targeted hardware and software diagnostics to restore optimal responsiveness.',
+    fullDescription: 'Why is your laptop sluggish? We check hardware bottlenecks, HDD health, low RAM issues, background startup hogs, thermal throttling, and malware to give an honest, practical solution.',
+    icon: 'Gauge',
+    startingPrice: 1200,
+    priceType: 'starting',
+    serviceDuration: '45 - 60 mins',
+    category: 'Troubleshooting',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 6,
+    featured: false,
+    workflowSteps: [
+      'Inspect Storage Drive Speed & Response Latency',
+      'Check RAM Usage, Pagefile Allocation & Memory Leaks',
+      'Audit Background Services & Heavy Startup Programs',
+      'Scan for Malware, Adware & Registry Clutter',
+      'Check CPU/GPU Operating Temperatures & Throttling',
+      'Provide Clear Recommendations (e.g. SSD or RAM upgrade)'
+    ]
+  },
+  {
+    id: 'srv-software-drivers',
+    name: 'Official Drivers & Software Setup',
+    shortDescription: 'Legitimate drivers, printers, browsers, and utility configuration.',
+    fullDescription: 'Proper installation of official manufacturer chipset, graphics, audio, Wi-Fi, and printer drivers. We configure legitimate software, office tools, and browsers. We never install pirated or cracked software.',
+    icon: 'Cpu',
+    startingPrice: 1000,
+    priceType: 'starting',
+    serviceDuration: '30 - 45 mins',
+    category: 'Software Setup',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 7,
+    featured: false,
+    workflowSteps: [
+      'Match Official Manufacturer Drivers for Exact Model',
+      'Install Graphics, Audio, Network & Chipset Drivers',
+      'Configure Network & USB Printers / Scanners',
+      'Install Required Legitimate Productivity Tools',
+      'Configure Windows Update & Security Settings'
+    ]
+  },
+  {
+    id: 'srv-authorized-account',
+    name: 'Authorized Account & Access Help',
+    shortDescription: 'Legitimate Windows user profile repair and authorized access recovery.',
+    fullDescription: 'Assistance for authorized owners locked out of local Windows accounts or dealing with corrupted user profiles. We strictly adhere to legal authorization and ethical standards — BitLocker encryption requires proper recovery keys.',
+    icon: 'ShieldCheck',
+    startingPrice: 1500,
+    priceType: 'diagnostic',
+    serviceDuration: '30 - 60 mins',
+    category: 'Account Recovery',
+    targetCustomer: 'all',
+    status: 'published',
+    displayOrder: 8,
+    featured: false,
+    workflowSteps: [
+      'Verify Customer Ownership & Authorization',
+      'Diagnose Profile Service Failure & Corrupt Registry Hive',
+      'Rebuild User Profile Data & Local Credentials',
+      'Guide Customer Through Microsoft Account Verification',
+      'Safeguard BitLocker Keys & Encryption Access'
+    ]
+  },
+  {
+    id: 'srv-bulk-deployment',
+    name: 'Bulk Windows Deployment for Offices & Labs',
+    shortDescription: 'Standardized OS deployment and maintenance for 5 to 50+ systems.',
+    fullDescription: 'High-speed automated Windows deployment, software provisioning, and network driver configuration for schools, academies, corporate offices, and computer labs in Peshawar. Fast turnaround with minimal downtime.',
+    icon: 'Building2',
+    startingPrice: 1200,
+    priceType: 'quote',
+    serviceDuration: 'Half-day / Full-day on-site',
+    category: 'Bulk Deployment',
+    targetCustomer: 'bulk',
+    status: 'published',
+    displayOrder: 9,
+    featured: true,
+    workflowSteps: [
+      'On-Site Assessment of Lab / Office Network & Hardware Specs',
+      'Prepare Standardized Master Windows Image & Toolsets',
+      'Batch Deployment via Multicast / High-Speed USB Arrays',
+      'Automated Driver Injection & Network Domain/Workgroup Join',
+      'Install Organization Software & Institutional Restrictions',
+      'Quality Audit & Handover with System Documentation'
+    ]
+  }
+];
+
+const initialFAQ: FAQItem[] = [
+  {
+    id: 'faq-1',
+    question: 'Do you come to my home or office in Peshawar?',
+    answer: 'Yes, absolutely. Our primary service model is on-site support. You do not need to pack up your desktop tower, monitor, or laptop and carry them through traffic to a repair shop. We come directly to your home, hostel, or office in Peshawar by appointment.',
+    category: 'General',
+    displayOrder: 1,
+    published: true
+  },
+  {
+    id: 'faq-2',
+    question: 'How does the on-site service process work?',
+    answer: 'It is simple: 1) You contact us on WhatsApp or submit our service form. 2) You describe your computer issue and computer model. 3) We agree on a convenient time. 4) I visit your location, run professional diagnostics, explain the solution, complete the fix, and test the computer in front of you before you pay.',
+    category: 'Process',
+    displayOrder: 2,
+    published: true
+  },
+  {
+    id: 'faq-3',
+    question: 'How quickly can Windows be installed?',
+    answer: 'Clean Windows installation typically takes between 45 and 90 minutes. We do not make false promises of 5-minute jobs because quality service includes backing up your files, installing all official hardware drivers, running critical security updates, and performing stability testing.',
+    category: 'Windows',
+    displayOrder: 3,
+    published: true
+  },
+  {
+    id: 'faq-4',
+    question: 'Can you move my existing Windows and files from HDD to SSD?',
+    answer: 'Yes! When appropriate and if your old drive is in healthy condition, we perform sector-level OS migration. This copies your exact Windows installation, programs, settings, and personal files to a new high-speed SSD so your computer boots instantly without losing anything.',
+    category: 'Hardware',
+    displayOrder: 4,
+    published: true
+  },
+  {
+    id: 'faq-5',
+    question: 'Can you recover deleted files or formatted drives?',
+    answer: 'When files are recently deleted or a partition is accidentally formatted, the actual data often remains on the drive until overwritten by new files. We can recover many lost documents and photos. However, recovery depends entirely on whether data was overwritten and the drive physical health.',
+    category: 'Data Recovery',
+    displayOrder: 5,
+    published: true
+  },
+  {
+    id: 'faq-6',
+    question: 'What should I do immediately if I accidentally deleted important files?',
+    answer: 'STOP USING THE COMPUTER IMMEDIATELY. Do not format the drive, do not install new Windows, do not download files, and do not keep browsing. Power off the system or unplug the external drive and contact us right away to maximize recovery chances.',
+    category: 'Data Recovery',
+    displayOrder: 6,
+    published: true
+  },
+  {
+    id: 'faq-7',
+    question: 'Can you fix Blue Screen of Death (BSOD) crashes?',
+    answer: 'Yes. A Blue Screen is a symptom with a specific stop code. We do not blindly format your computer. We inspect memory minidump crash logs, test RAM modules, check SSD health, verify driver conflicts, and solve the actual root cause.',
+    category: 'Troubleshooting',
+    displayOrder: 7,
+    published: true
+  },
+  {
+    id: 'faq-8',
+    question: 'Do you install pirated or cracked software?',
+    answer: 'No. We strictly adhere to safe and legitimate software practices. Cracked software frequently contains hidden trojans, keyloggers, and crypto miners that compromise your privacy, bank accounts, and system stability.',
+    category: 'Trust & Safety',
+    displayOrder: 8,
+    published: true
+  },
+  {
+    id: 'faq-9',
+    question: 'Can you help if I am locked out of my Windows account?',
+    answer: 'We provide authorized Windows user profile troubleshooting and local account recovery for customers who own the computer. If a drive is protected by BitLocker encryption, the legitimate recovery key or Microsoft account credentials are required.',
+    category: 'Account Recovery',
+    displayOrder: 9,
+    published: true
+  },
+  {
+    id: 'faq-10',
+    question: 'Do you provide bulk Windows installation for offices, schools, and labs?',
+    answer: 'Yes, we provide bulk deployment services for 5, 10, 20, or 50+ PCs. We use automated image deployment techniques so every PC is set up consistently with required drivers, software, and network settings in a fraction of the time.',
+    category: 'Bulk Services',
+    displayOrder: 10,
+    published: true
+  }
+];
+
+const initialAreas: ServiceArea[] = [
+  { id: 'area-1', name: 'University Town & University Campuses', status: 'active', travelFee: 300, notes: 'UET Peshawar, Agriculture Univ, Univ of Peshawar, Khyber Medical', displayOrder: 1 },
+  { id: 'area-2', name: 'Hayatabad (Phases 1 - 7)', status: 'active', travelFee: 500, notes: 'Full residential and commercial phases', displayOrder: 2 },
+  { id: 'area-3', name: 'Saddar, Cantt & Mall Road', status: 'active', travelFee: 500, notes: 'Commercial offices, shops, and residences', displayOrder: 3 },
+  { id: 'area-4', name: 'Warsak Road & Regi Model Town', status: 'active', travelFee: 600, notes: 'Schools, academies, and residential areas', displayOrder: 4 },
+  { id: 'area-5', name: 'Board Bazar & Danishabad', status: 'active', travelFee: 300, notes: 'Student hostels, academies, and apartments', displayOrder: 5 },
+  { id: 'area-6', name: 'Ring Road & Gulbahar', status: 'active', travelFee: 500, notes: 'Offices and residences along Ring Road', displayOrder: 6 },
+  { id: 'area-7', name: 'Dabgari Gardens & City Center', status: 'active', travelFee: 600, notes: 'Clinics, commercial labs, and offices', displayOrder: 7 },
+  { id: 'area-8', name: 'Kohat Road & Suburbs', status: 'active', travelFee: 800, notes: 'By advance booking only', displayOrder: 8 }
+];
+
+const initialRequests: ServiceRequest[] = [
+  {
+    id: 'req-101',
+    trackingId: 'PK-REQ-101',
+    customerName: 'Muhammad Hamza',
+    email: 'hamza.peshawar@gmail.com',
+    phone: '03339123456',
+    whatsapp: '03339123456',
+    area: 'Hayatabad Phase 4',
+    deviceType: 'laptop',
+    computerBrandModel: 'Dell Inspiron 15 3501',
+    operatingSystem: 'Windows 10',
+    requestedService: 'HDD to SSD & OS Migration',
+    problemDescription: 'Laptop takes almost 4 minutes to start up and freezes frequently when opening Chrome and Excel. Want to install 500GB SSD without losing my university files.',
+    importantData: true,
+    preferredDate: '2026-09-18',
+    preferredTime: '3:00 PM',
+    urgency: 'high',
+    status: 'confirmed',
+    emailSent: true,
+    adminNotes: 'Confirmed appointment for Friday 3:00 PM. Customer already has Kingston NVMe SSD.',
+    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'req-102',
+    trackingId: 'PK-REQ-102',
+    customerName: 'Dr. Tariq Khan',
+    email: 'dr.tariq@kmu.edu.pk',
+    phone: '03005876543',
+    whatsapp: '03005876543',
+    area: 'University Town',
+    deviceType: 'desktop',
+    computerBrandModel: 'HP ProDesk 600 G3 Tower',
+    operatingSystem: 'Windows 11',
+    requestedService: 'Blue Screen (BSOD) Diagnosis',
+    problemDescription: 'Computer randomly crashes with blue screen showing CRITICAL_PROCESS_DIED. Happens twice a day during office work.',
+    importantData: true,
+    preferredDate: '2026-09-17',
+    preferredTime: '11:00 AM',
+    urgency: 'urgent',
+    status: 'in_progress',
+    emailSent: true,
+    adminNotes: 'Visiting clinic office. Minidump showed storage controller timeout. Testing SATA cable and drive sectors.',
+    createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'req-103',
+    trackingId: 'PK-REQ-103',
+    customerName: 'Ahmad Bilal',
+    email: 'ahmad.bilal99@gmail.com',
+    phone: '03459988776',
+    whatsapp: '03459988776',
+    area: 'Board Bazar, Danishabad',
+    deviceType: 'laptop',
+    computerBrandModel: 'Lenovo ThinkPad T480',
+    operatingSystem: 'Windows 10',
+    requestedService: 'Windows Installation & Setup',
+    problemDescription: 'Windows corrupted after failed update. Stuck on restarting screen. Need fresh Windows 11 with drivers.',
+    importantData: false,
+    preferredDate: '2026-09-19',
+    preferredTime: '5:00 PM',
+    urgency: 'normal',
+    status: 'new',
+    emailSent: false,
+    adminNotes: 'New request from hostel student. Needs call back.',
+    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'req-104',
+    trackingId: 'PK-REQ-104',
+    customerName: 'Khyber IT Academy (Engr. Waqas)',
+    email: 'info@khyberacademy.pk',
+    phone: '03129112233',
+    whatsapp: '03129112233',
+    area: 'Saddar Road, Cantt',
+    deviceType: 'desktop',
+    computerBrandModel: '15x HP EliteDesk 800 Mini PCs',
+    operatingSystem: 'Windows 10 Pro',
+    requestedService: 'Bulk Windows Deployment for Offices & Labs',
+    problemDescription: '15 desktop PCs in student lab need Windows 11 clean image, networking, Google Chrome, VS Code, and security lockdown.',
+    importantData: false,
+    preferredDate: '2026-09-21',
+    preferredTime: '10:00 AM',
+    urgency: 'high',
+    status: 'appointment_requested',
+    emailSent: true,
+    adminNotes: 'Discussed scope over phone. Quoted Rs. 1,000 per PC. Awaiting date confirmation.',
+    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
+const initialBookings: Booking[] = [
+  {
+    id: 'bkg-201',
+    requestId: 'req-101',
+    customerName: 'Muhammad Hamza',
+    phone: '03339123456',
+    whatsapp: '03339123456',
+    addressArea: 'House 42, Street 3, Sector G-2, Hayatabad Phase 4',
+    device: 'Dell Inspiron 15 (Laptop)',
+    problem: 'HDD to SSD upgrade & Windows migration',
+    service: 'HDD to SSD & OS Migration',
+    date: '2026-09-18',
+    time: '3:00 PM',
+    status: 'confirmed',
+    technician: 'Safiullah',
+    price: 3000,
+    paymentStatus: 'pending',
+    notes: 'Bring SATA to USB adapter and cloning tool kit.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'bkg-202',
+    requestId: 'req-102',
+    customerName: 'Dr. Tariq Khan',
+    phone: '03005876543',
+    whatsapp: '03005876543',
+    addressArea: 'Clinic 3B, Park Road, University Town',
+    device: 'HP ProDesk Tower',
+    problem: 'BSOD Crash Diagnosis & Ram Testing',
+    service: 'Blue Screen (BSOD) Diagnosis',
+    date: '2026-09-17',
+    time: '11:00 AM',
+    status: 'in_progress',
+    technician: 'Safiullah',
+    price: 2000,
+    paymentStatus: 'pending',
+    notes: 'On site diagnosing RAM and SSD SMART parameters.',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: 'bkg-203',
+    customerName: 'Ayesha Bibi',
+    phone: '03219445566',
+    whatsapp: '03219445566',
+    addressArea: 'Warsak Road near Askari 6',
+    device: 'Asus VivoBook 14',
+    problem: 'Clean Windows 11 installation with official drivers',
+    service: 'Windows Installation & Setup',
+    date: '2026-09-16',
+    time: '2:00 PM',
+    status: 'completed',
+    technician: 'Safiullah',
+    price: 2500,
+    paymentStatus: 'paid',
+    notes: 'Completed successfully. Tested Wi-Fi, audio, display drivers, and activated Windows.',
+    createdAt: new Date(Date.now() - 3600000 * 28).toISOString(),
+    updatedAt: new Date().toISOString()
+  }
+];
+
+const initialCustomers: Customer[] = [
+  {
+    id: 'cust-1',
+    name: 'Muhammad Hamza',
+    phone: '03339123456',
+    whatsapp: '03339123456',
+    email: 'm.hamza.std@gmail.com',
+    area: 'Hayatabad Phase 4',
+    notes: 'University student. Very cooperative.',
+    requestCount: 1,
+    completedCount: 0,
+    createdAt: new Date(Date.now() - 3600000 * 24).toISOString()
+  },
+  {
+    id: 'cust-2',
+    name: 'Dr. Tariq Khan',
+    phone: '03005876543',
+    whatsapp: '03005876543',
+    email: 'dr.tariq.pesh@yahoo.com',
+    area: 'University Town',
+    notes: 'Medical consultant clinic. Needs quiet and fast service.',
+    requestCount: 2,
+    completedCount: 1,
+    lastServiceDate: '2026-08-10',
+    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
+  },
+  {
+    id: 'cust-3',
+    name: 'Ayesha Bibi',
+    phone: '03219445566',
+    whatsapp: '03219445566',
+    area: 'Warsak Road',
+    notes: 'Home user. Reinstalled Windows 11.',
+    requestCount: 1,
+    completedCount: 1,
+    lastServiceDate: '2026-09-16',
+    createdAt: new Date(Date.now() - 3600000 * 28).toISOString()
+  }
+];
+
+const initialCases: RealServiceCase[] = [
+  // Start empty or with placeholder as requested: "Initially show: 'No service cases published yet.' Allow me to add real cases later from the admin panel."
+];
+
+const initialMedia: MediaItem[] = [
+  {
+    id: 'med-cloudinary-profile',
+    name: 'Safiullah Profile Portrait (Cloudinary)',
+    url: 'https://res.cloudinary.com/frbhiwf3/image/upload/v1789623662/WhatsApp_Image_2026-09-02_at_3.32.16_PM.jpg',
+    size: 'Cloudinary HD',
+    altText: 'Safiullah - On-Site Computer Technician Peshawar',
+    title: 'Technician Profile (Active)',
+    createdAt: new Date().toISOString()
+  }
+];
+
+export function getDatabase(): DatabaseSchema {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+
+  if (!fs.existsSync(DB_FILE)) {
+    const initialDb: DatabaseSchema = {
+      settings: initialSettings,
+      services: initialServices,
+      requests: initialRequests,
+      bookings: initialBookings,
+      customers: initialCustomers,
+      faq: initialFAQ,
+      areas: initialAreas,
+      cases: initialCases,
+      media: initialMedia
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialDb, null, 2), 'utf-8');
+    return initialDb;
+  }
+
+  try {
+    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return parsed;
+  } catch (err) {
+    console.error('Error reading db.json, returning fallback:', err);
+    return {
+      settings: initialSettings,
+      services: initialServices,
+      requests: initialRequests,
+      bookings: initialBookings,
+      customers: initialCustomers,
+      faq: initialFAQ,
+      areas: initialAreas,
+      cases: initialCases,
+      media: initialMedia
+    };
+  }
+}
+
+export function saveDatabase(data: DatabaseSchema): void {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}

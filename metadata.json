@@ -1,0 +1,6 @@
+{
+  "name": "Peshawar Tech Support - On-Site Computer Service",
+  "description": "Professional on-site Windows installation, computer repair, SSD upgrade, data recovery, and BSOD diagnosis in Peshawar, KPK. We come to your home or office.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
